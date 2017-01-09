@@ -49,9 +49,17 @@ public class HelloWorldServletTest {
         URL obj = new URL(base, "HelloWorld");
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
-        
+        System.out.println("response code::" + con.getResponseCode());
+        System.out.println("Error stream code::" + con.getErrorStream());
+        System.out.println("Response stream code::" + con.getInputStream() + "::" +con.getResponseMessage());
+
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
+        BufferedReader err = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+        String errorLine;
+        StringBuffer errResponse = new StringBuffer();
+
+
         String inputLine;
         StringBuffer response = new StringBuffer();
  
@@ -59,7 +67,14 @@ public class HelloWorldServletTest {
             response.append(inputLine);
         }
         in.close();
- 
+
+        while ((errorLine = err.readLine()) != null) {
+            errResponse.append(errorLine);
+        }
+        err.close();
+
+        System.out.println("error response:" + errResponse);
+        
         assertThat(response.toString(), is("Hello World"));
         
     }
