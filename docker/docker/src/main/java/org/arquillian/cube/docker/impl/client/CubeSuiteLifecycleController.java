@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
+import io.fabric8.docker.api.model.Container;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,9 +112,9 @@ public class CubeSuiteLifecycleController {
 
     private boolean isCubeRunning(String cube) {
         //TODO should we create an adapter class so we don't expose client classes in this part?
-        List<com.github.dockerjava.api.model.Container> runningContainers =
-            dockerClientExecutor.get().listRunningContainers();
-        for (com.github.dockerjava.api.model.Container container : runningContainers) {
+        final List<Container> runningContainers = dockerClientExecutor.get().listRunningContainers();
+
+        for (Container container : runningContainers) {
             for (String name : container.getNames()) {
                 if (name.startsWith("/")) {
                     name = name.substring(1); //Names array adds an slash to the docker name container.

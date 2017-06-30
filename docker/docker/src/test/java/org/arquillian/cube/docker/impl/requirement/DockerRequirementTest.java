@@ -101,7 +101,7 @@ public class DockerRequirementTest {
         }
 
         public String getConnectionString() {
-            return "tcp://" + serverSocket.getInetAddress().getHostName() + ":" + serverSocket.getLocalPort();
+            return "http://" + serverSocket.getInetAddress().getHostName() + ":" + serverSocket.getLocalPort();
         }
 
         @Override

@@ -1,8 +1,7 @@
 package org.arquillian.cube.docker.impl.await;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.core.async.ResultCallbackTemplate;
+import io.fabric8.docker.client.DockerClient;
+import io.fabric8.docker.dsl.OutputHandle;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -69,16 +68,14 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
     public boolean await() {
         final DockerClient client = dockerClientExecutor.getDockerClient();
         final CountDownLatch containerUp = new CountDownLatch(1);
+        try {
+            final LogContainerResultCallback callback = new LogContainerResultCallback(containerUp, this.occurrences);
+            final OutputHandle follow = client.container().withName(cube.getId()).logs().writingOutput(System.out)
+                .usingListener(callback).follow();
 
-        try (final LogContainerResultCallback callback = new LogContainerResultCallback(containerUp, this.occurrences)) {
-
-            client.logContainerCmd(cube.getId())
-                .withStdErr(true)
-                .withStdOut(true)
-                .withFollowStream(true)
-                .exec(callback);
-
-            return containerUp.await(this.timeout, TimeUnit.SECONDS);
+            final boolean await = containerUp.await(this.timeout, TimeUnit.SECONDS);
+            follow.close();
+            return await;
         } catch (IOException | InterruptedException e) {
             logger.log(Level.SEVERE, String.format("Log Await Strategy failed with %s", e.getMessage()));
             return false;
@@ -118,7 +115,7 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
         }
     }
 
-    private class LogContainerResultCallback extends ResultCallbackTemplate<LogContainerResultCallback, Frame> {
+    private class LogContainerResultCallback implements io.fabric8.docker.dsl.EventListener {
 
         private CountDownLatch containerUp;
         private int occurrences;
@@ -129,6 +126,26 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
         }
 
         @Override
+        public void onSuccess(String s) {
+
+        }
+
+        @Override
+        public void onError(String s) {
+
+        }
+
+        @Override
+        public void onEvent(String s) {
+            if (matcher.match(s)) {
+                this.occurrences--;
+                if (this.occurrences == 0) {
+                    this.containerUp.countDown();
+                }
+            }
+        }
+
+        /*@Override
         public void onNext(Frame item) {
             String line = new String(item.getPayload());
 
@@ -138,6 +155,6 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
                     this.containerUp.countDown();
                 }
             }
-        }
+        }*/
     }
 }

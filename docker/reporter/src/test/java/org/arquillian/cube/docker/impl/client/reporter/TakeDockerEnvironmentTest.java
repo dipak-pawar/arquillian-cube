@@ -1,7 +1,13 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
-import com.github.dockerjava.api.model.Statistics;
-import com.github.dockerjava.api.model.Version;
+import io.fabric8.docker.api.model.Stats;
+import io.fabric8.docker.api.model.Version;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.DefinitionFormat;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
@@ -27,10 +33,16 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.util.*;
-
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.*;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_COMPOSITION_SCHEMA;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_HOST_INFORMATION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_KERNEL;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_OS;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.LOG_PATH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
@@ -66,7 +78,7 @@ public class TakeDockerEnvironmentTest {
     private CubeRegistry cubeRegistry;
 
     @Mock
-    private Statistics statistics;
+    private Stats statistics;
 
 
     @Before
@@ -78,7 +90,7 @@ public class TakeDockerEnvironmentTest {
 
     private void configureDockerExecutor() {
         when(version.getVersion()).thenReturn("1.1.0");
-        when(version.getOperatingSystem()).thenReturn("linux");
+        when(version.getOs()).thenReturn("linux");
         when(version.getKernelVersion()).thenReturn("3.1.0");
         when(version.getApiVersion()).thenReturn("1.12");
         when(version.getArch()).thenReturn("x86");
@@ -89,9 +101,9 @@ public class TakeDockerEnvironmentTest {
         cubeRegistry = new LocalCubeRegistry();
         when(cube.getId()).thenReturn(CUBE_ID);
         cubeRegistry.addCube(cube);
-        when(statistics.getNetworks()).thenReturn(getNetworks());
-        when(statistics.getMemoryStats()).thenReturn(getMemory());
-        when(statistics.getBlkioStats()).thenReturn(getIOStats());
+        //when(statistics.getNetworks()).thenReturn(getNetworks());
+        //when(statistics.getMemoryStats()).thenReturn(getMemory());
+        //when(statistics.getBlkioStats()).thenReturn(getIOStats());
         when(dockerClientExecutor.statsContainer(CUBE_ID)).thenReturn(statistics);
     }
 

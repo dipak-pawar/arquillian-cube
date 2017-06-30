@@ -1,8 +1,6 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
 
-import com.github.dockerjava.api.model.AccessMode;
-
 /**
  * Binding mode for volumes
  */
@@ -14,5 +12,21 @@ public enum BindMode {
 
     BindMode(AccessMode accessMode) {
         this.accessMode = accessMode;
+    }
+
+    public enum AccessMode {
+
+        rw, ro;
+
+
+        public static final AccessMode DEFAULT = rw;
+
+        public static final AccessMode fromBoolean(boolean accessMode) {
+            return accessMode ? rw : ro;
+        }
+
+        public final boolean toBoolean() {
+            return this.equals(AccessMode.rw);
+        }
     }
 }

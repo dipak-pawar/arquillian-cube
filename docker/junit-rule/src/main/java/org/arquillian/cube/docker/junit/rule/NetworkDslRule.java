@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.junit.rule;
 
+import io.fabric8.docker.api.model.NetworkResource;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.Network;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.NetworkBuilder;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
@@ -36,7 +37,7 @@ public class NetworkDslRule implements TestRule {
 
     public List<String> getNetworks() {
         return  this.dockerClientExecutor.getNetworks().stream()
-            .map(com.github.dockerjava.api.model.Network::getName)
+            .map(NetworkResource::getName)
             .collect(Collectors.toList());
     }
 

@@ -1,7 +1,7 @@
 package org.arquillian.cube.docker.impl.model;
 
-import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.exception.NotModifiedException;
+import io.fabric8.docker.api.model.Container;
+import io.fabric8.docker.client.DockerClientException;
 import java.net.InetAddress;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -158,8 +158,12 @@ public class DockerCube extends BaseCube<CubeContainer> {
                 } else {
                     executor.stopContainer(id);
                 }
-            } catch (NotFoundException e) {
-            } catch (NotModifiedException e) {
+            } catch (DockerClientException e) {
+                if (e.getMessage().contains("Message: Not Modified.") || e.getMessage().contains("Message: Not Found.")) {
+
+                } else {
+                    throw e;
+                }
             }
             this.stoppingTimeInMillis = System.currentTimeMillis() - currentTime;
 
@@ -182,8 +186,12 @@ public class DockerCube extends BaseCube<CubeContainer> {
             long currentTime = System.currentTimeMillis();
             try {
                 executor.removeContainer(id, configuration.getRemoveVolumes());
-            } catch (NotFoundException e) {
-            } catch (NotModifiedException e) {
+            } catch (DockerClientException e) {
+                if (e.getMessage().contains("Message: Not Modified.") || e.getMessage().contains("Message: Not Found.")) {
+
+                } else {
+                    throw e;
+                }
             }
             long partialDuration = System.currentTimeMillis() - currentTime;
             this.stoppingTimeInMillis = this.stoppingTimeInMillis + partialDuration;
@@ -223,8 +231,8 @@ public class DockerCube extends BaseCube<CubeContainer> {
     @Override
     public boolean isRunningOnRemote() {
         // TODO should we create an adapter class so we don't expose client classes in this part?
-        List<com.github.dockerjava.api.model.Container> runningContainers = executor.listRunningContainers();
-        for (com.github.dockerjava.api.model.Container container : runningContainers) {
+        final List<Container> runningContainers = executor.listRunningContainers();
+        for (Container container : runningContainers) {
             for (String name : container.getNames()) {
                 if (name.startsWith("/")) {
                     name = name.substring(1); // Names array adds an slash to the docker name container.

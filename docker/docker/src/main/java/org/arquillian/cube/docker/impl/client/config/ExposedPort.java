@@ -1,8 +1,12 @@
 package org.arquillian.cube.docker.impl.client.config;
 
+import io.fabric8.docker.api.model.Protocol;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExposedPort {
     private int exposed;
@@ -94,5 +98,12 @@ public class ExposedPort {
             return false;
         }
         return true;
+    }
+
+    public static Map<Integer, Protocol> getExposedPorts(Set<ExposedPort> exposedPorts) {
+        Map<Integer, Protocol> map = new HashMap<>();
+        exposedPorts.forEach(exposedPort -> map.put(exposedPort.exposed, Protocol.valueOf(exposedPort.type.toUpperCase())));
+
+        return map;
     }
 }

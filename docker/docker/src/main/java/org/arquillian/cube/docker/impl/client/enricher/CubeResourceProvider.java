@@ -1,6 +1,6 @@
 package org.arquillian.cube.docker.impl.client.enricher;
 
-import com.github.dockerjava.api.DockerClient;
+import io.fabric8.docker.client.DockerClient;
 import java.lang.annotation.Annotation;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.jboss.arquillian.core.api.Instance;

@@ -1,29 +1,32 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
-import com.github.dockerjava.api.model.Statistics;
-import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
-
+import io.fabric8.docker.api.model.BlkioStatEntry;
+import io.fabric8.docker.api.model.MemoryStats;
+import io.fabric8.docker.api.model.Stats;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
 
 public class ContainerStatsBuilder {
 
-    public static CubeStatistics updateStats(Statistics statistics) {
+    public static CubeStatistics updateStats(Stats statistics) {
 
         CubeStatistics stats = new CubeStatistics();
 
-        Map<String, Long> blkio = extractIORW(statistics.getBlkioStats());
-        Map<String, Long> memory = extractMemoryStats(statistics.getMemoryStats(), "usage", "max_usage", "limit");
+        final List<BlkioStatEntry> ioServiceBytesRecursive = statistics.getBlkioStats().getIoServiceBytesRecursive();
 
-        stats.setIoBytesRead(blkio.get("io_bytes_read"));
+      //  Map<String, Long> blkio = extractIORW(statistics.getBlkioStats().getIoServiceBytesRecursive());
+        final MemoryStats memoryStats = statistics.getMemoryStats();
+
+        /*stats.setIoBytesRead(blkio.get("io_bytes_read"));
         stats.setIoBytesWrite(blkio.get("io_bytes_write"));
-        stats.setMaxUsage(memory.get("max_usage"));
-        stats.setUsage(memory.get("usage"));
-        stats.setLimit(memory.get("limit"));
+        stats.setMaxUsage(memoryStats.getMaxUsage());
+        stats.setUsage(memoryStats.getUsage());
+        stats.setLimit(memoryStats.getLimit());
 
-        stats.setNetworks(extractNetworksStats(statistics.getNetworks()));
+        stats.setNetworks(extractNetworksStats(statistics.getNetworks()));*/
 
 
         return stats;

@@ -117,11 +117,14 @@
       <artifactId>shrinkwrap-descriptors-impl-docker</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>com.github.docker-java</groupId>
-      <artifactId>docker-java</artifactId>
+      <groupId>io.fabric8</groupId>
+      <artifactId>docker-client</artifactId>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>com.github.docker-java</groupId>-->
+      <!--<artifactId>docker-java</artifactId>-->
+    <!--</dependency>-->
 
     <dependency>
       <groupId>org.yaml</groupId>

@@ -1,8 +1,9 @@
 package org.arquillian.cube.docker.impl.client;
 
-import com.github.dockerjava.api.model.Container;
+import io.fabric8.docker.api.model.Container;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -201,8 +202,8 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
-        when(container.getNames()).thenReturn(new String[] {"a"});
-        when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
+        when(container.getNames()).thenReturn(Collections.singletonList("a"));
+        when(executor.listRunningContainers()).thenReturn(Collections.singletonList(container));
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
         fire(new BeforeSuite());
@@ -231,8 +232,8 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
-        when(container.getNames()).thenReturn(new String[] {"alreadyrun"});
-        when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
+        when(container.getNames()).thenReturn(Collections.singletonList("alreadyrun"));
+        when(executor.listRunningContainers()).thenReturn(Collections.singletonList(container));
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
         fire(new BeforeSuite());
@@ -260,8 +261,8 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
-        when(container.getNames()).thenReturn(new String[] {"alreadyrun"});
-        when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
+        when(container.getNames()).thenReturn(Collections.singletonList("alreadyrun"));
+        when(executor.listRunningContainers()).thenReturn(Collections.singletonList(container));
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
         fire(new BeforeSuite());

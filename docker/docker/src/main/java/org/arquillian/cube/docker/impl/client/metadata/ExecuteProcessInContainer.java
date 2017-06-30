@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client.metadata;
 
+import io.fabric8.docker.api.model.ContainerState;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.metadata.CanExecuteProcessInContainer;
 
@@ -16,8 +17,10 @@ public class ExecuteProcessInContainer implements CanExecuteProcessInContainer {
     @Override
     public ExecResult exec(String... command) {
         final DockerClientExecutor.ExecInspection execInspection = this.executor.execStartVerbose(cubeId, command);
+        final ContainerState containerState = execInspection.getContainerInspect().getState();
+
         return new ExecResult(execInspection.getOutput(),
-            execInspection.getInspectExecResponse().isRunning(),
-            execInspection.getInspectExecResponse().getExitCode());
+            containerState.getRunning(),
+            containerState.getExitCode());
     }
 }

@@ -1,10 +1,11 @@
 package org.arquillian.cube.docker.impl.util;
 
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.ContainerConfig;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.NetworkSettings;
+import io.fabric8.docker.api.model.Config;
+import io.fabric8.docker.api.model.ContainerInspect;
+import io.fabric8.docker.api.model.HostConfig;
+import io.fabric8.docker.api.model.NetworkSettings;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Map.Entry;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
@@ -19,36 +20,45 @@ public final class BindingUtil {
     }
 
     public static Binding binding(DockerClientExecutor executor, String cubeId) {
-        InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd(cubeId).exec();
+        ContainerInspect inspectResponse = executor.getDockerClient().container().withName(cubeId).inspect();
+
 
         String dockerIp = getDockerServerIp(executor);
         String inernalIp = null;
         NetworkSettings networkSettings = inspectResponse.getNetworkSettings();
         if (networkSettings != null) {
-            inernalIp = networkSettings.getIpAddress();
+            inernalIp = networkSettings.getIPAddress();
         }
 
         Binding binding = new Binding(dockerIp, inernalIp);
 
         HostConfig hostConfig = inspectResponse.getHostConfig();
+
         if (hostConfig.getPortBindings() != null) {
-            for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
-                .getBindings().entrySet()) {
-                com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();
-                for (com.github.dockerjava.api.model.Ports.Binding bindings : allBindings) {
-                    binding.addPortBinding(bind.getKey().getPort(), Integer.parseInt(bindings.getHostPortSpec()));
+
+            for (Entry<String, ArrayList<io.fabric8.docker.api.model.PortBinding>> bind : hostConfig.getPortBindings().entrySet()) {
+                final ArrayList<io.fabric8.docker.api.model.PortBinding> allBindings = bind.getValue();
+                for (io.fabric8.docker.api.model.PortBinding bindings : allBindings) {
+                    binding.addPortBinding(getPort(bind.getKey()), Integer.parseInt(bindings.getHostPort()));
                 }
             }
         } else {
-            ContainerConfig connectionConfig = inspectResponse.getConfig();
-            final ExposedPort[] exposedPorts = connectionConfig.getExposedPorts();
-            if (exposedPorts != null) {
-                for (ExposedPort port : exposedPorts) {
-                    binding.addPortBinding(port.getPort(), -1);
+            final Config config = inspectResponse.getConfig();
+            final Map<String, Object> exposedPorts = config.getExposedPorts();
+            if (exposedPorts != null && !exposedPorts.isEmpty()) {
+
+                for (String port : exposedPorts.keySet()) {
+                    binding.addPortBinding(getPort(port), -1);
                 }
             }
         }
         return binding;
+    }
+
+    private static int getPort(String protocolWithPort) {
+        final String port = protocolWithPort.split("/")[0];
+
+        return Integer.valueOf(port);
     }
 
     private static String getDockerServerIp(DockerClientExecutor executor) {

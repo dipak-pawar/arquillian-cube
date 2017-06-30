@@ -415,7 +415,7 @@ public class ContainerBuilder {
     }
 
     public ContainerBuilder addLinks(Collection<String> links) {
-        Collection<Link> listOfLinks = new HashSet<Link>();
+        Collection<Link> listOfLinks = new HashSet<>();
         for (String link : links) {
             listOfLinks.add(Link.valueOf(link));
         }
@@ -437,7 +437,7 @@ public class ContainerBuilder {
                 case 1: {
                     //random host port
                     if (port.contains("-")) {
-                        getExpandedPorts(port).stream()
+                        getExpandedPorts(port)
                                 .forEach(expandedPort -> listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + expandedPort)));
                     } else {
                         listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));

@@ -1,11 +1,16 @@
 package org.arquillian.cube.docker.impl.model;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.InspectContainerCmd;
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Ports;
+import io.fabric8.docker.api.model.ContainerInspect;
+import io.fabric8.docker.api.model.HostConfig;
+import io.fabric8.docker.client.DockerClient;
+import io.fabric8.docker.client.DockerClientException;
+import io.fabric8.docker.client.impl.ContainerNamedOperationImpl;
+import io.fabric8.docker.client.impl.ContainerOperationImpl;
+import io.fabric8.docker.dsl.container.ContainerExecResourceLogsAttachArchiveInterface;
+import io.fabric8.docker.dsl.container.ContainerInterface;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
@@ -42,10 +47,13 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     private DockerClient dockerClient;
 
     @Mock
-    private InspectContainerCmd inspectContainerCmd;
+    private ContainerInterface containerInterface;
 
     @Mock
-    private InspectContainerResponse inspectContainerResponse;
+    private ContainerExecResourceLogsAttachArchiveInterface containerExecResourceLogsAttachArchiveInterface;
+
+    @Mock
+    private ContainerInspect inspectContainerResponse;
 
     @Inject
     private Instance<Injector> injectorInst;
@@ -55,10 +63,13 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Before
     public void setup() {
         HostConfig hostConfig = new HostConfig();
-        hostConfig.withPortBindings(new Ports());
+        final Map<String, ArrayList<io.fabric8.docker.api.model.PortBinding>> portBindings = new HashMap<>();
+        hostConfig.setPortBindings(portBindings); //new Ports();
         when(inspectContainerResponse.getHostConfig()).thenReturn(hostConfig);
-        when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
-        when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
+        when(dockerClient.container()).thenReturn(containerInterface);
+        when(containerInterface.withName(anyString())).thenReturn(containerExecResourceLogsAttachArchiveInterface);
+        //when(inspectContainerCmd.inspect()).thenReturn(inspectContainerResponse);
+        when(dockerClient.container().withName(anyString()).inspect()).thenReturn(inspectContainerResponse);
         when(executor.getDockerClient()).thenReturn(dockerClient);
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setRemoveVolumes(false);
@@ -88,7 +99,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
 
     @Test
     public void shouldFireLifecycleEventsDuringStopWhenContainerNotFound() {
-        doThrow(new NotFoundException("container not found"))
+        doThrow(new DockerClientException("Message: Not Found.", 404))
             .when(executor).stopContainer(ID);
         cube.stop();
         assertEventFired(BeforeStop.class, 1);
@@ -105,7 +116,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
 
     @Test
     public void shouldFireLifecycleEventsDuringDestroyWhenContainerNotFound() {
-        doThrow(new NotFoundException("container not found"))
+        doThrow(new DockerClientException("Message: Not Found.", 404))
             .when(executor).removeContainer(ID, false);
         cube.stop();
         cube.destroy();

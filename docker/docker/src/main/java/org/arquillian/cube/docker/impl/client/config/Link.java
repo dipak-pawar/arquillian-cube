@@ -28,7 +28,7 @@ public class Link {
         if (links == null) {
             return null;
         }
-        List<Link> result = new ArrayList<Link>();
+        List<Link> result = new ArrayList<>();
         for (String link : links) {
             result.add(valueOf(link));
         }
