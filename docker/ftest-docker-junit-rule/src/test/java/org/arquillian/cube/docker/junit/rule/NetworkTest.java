@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RequiresDockerMachine(name = "dev")
+//@RequiresDockerMachine(name = "dev")
 public class NetworkTest {
 
     @Rule

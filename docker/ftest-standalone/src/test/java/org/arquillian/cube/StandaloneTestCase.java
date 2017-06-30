@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
+//@RequiresDockerMachine(name = "dev")
 public class StandaloneTestCase {
 
     private static final String CONTAINER = "database";

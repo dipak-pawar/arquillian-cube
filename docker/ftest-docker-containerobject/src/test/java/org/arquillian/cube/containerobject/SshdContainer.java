@@ -1,6 +1,6 @@
 package org.arquillian.cube.containerobject;
 
-import com.github.dockerjava.api.DockerClient;
+import io.fabric8.docker.client.DockerClient;
 import org.arquillian.cube.HostIp;
 import org.jboss.arquillian.test.api.ArquillianResource;
 

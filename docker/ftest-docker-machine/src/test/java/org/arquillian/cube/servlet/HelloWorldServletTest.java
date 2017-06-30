@@ -1,6 +1,6 @@
 package org.arquillian.cube.servlet;
 
-import com.github.dockerjava.api.DockerClient;
+import io.fabric8.docker.client.DockerClient;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,7 +31,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
+//@RequiresDockerMachine(name = "dev")
 public class HelloWorldServletTest {
 
     @Rule
@@ -96,7 +96,7 @@ public class HelloWorldServletTest {
     public void should_copy_files_from_container(@ArquillianResource CubeController cubeController,
         @ArquillianResource CubeID cubeID) throws IOException {
         File newFolder = folder.newFolder();
-        cubeController.copyFileDirectoryFromContainer(cubeID, "/tomcat/logs", newFolder.getAbsolutePath());
+        cubeController.copyFileDirectoryFromContainer(cubeID, "/usr/local/tomcat/logs", newFolder.getAbsolutePath());
         File logFolder = newFolder.listFiles()[0];
         assertThat(logFolder, notNullValue());
         assertThat(logFolder.listFiles().length > 0, is(true));

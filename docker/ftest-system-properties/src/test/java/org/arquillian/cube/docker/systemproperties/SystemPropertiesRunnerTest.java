@@ -10,7 +10,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
+//@RequiresDockerMachine(name = "dev")
 public class SystemPropertiesRunnerTest {
 
     @Test

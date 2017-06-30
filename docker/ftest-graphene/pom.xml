@@ -44,12 +44,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.arquillian.graphene</groupId>
-      <artifactId>graphene-webdriver-impl</artifactId>
-      <version>${version.graphene}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-requirement</artifactId>
       <scope>test</scope>
@@ -58,6 +52,23 @@
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-docker</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.graphene</groupId>
+      <artifactId>graphene-webdriver-impl</artifactId>
+      <version>${version.graphene}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>3.2.5</version>
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>

@@ -16,7 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
+//@RequiresDockerMachine(name = "dev")
 public class PingPongTest {
 
     @HostIp

@@ -1,6 +1,6 @@
 package org.arquillian.cube.containerobject;
 
-import com.github.dockerjava.api.DockerClient;
+import io.fabric8.docker.client.DockerClient;
 import java.io.InputStream;
 import org.arquillian.cube.HostIp;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -39,9 +39,7 @@ public class FtpContainer {
     }
 
     public boolean isFilePresentInContainer(String filename) {
-        try (
-            final InputStream file = dockerClient.copyArchiveFromContainerCmd("ftp",
-                "/ftp/" + filename).exec()) {
+        try (final InputStream file = dockerClient.container().withName("ftp").archive().downloadFrom("/ftp/" + filename)) {
             return file != null;
         } catch (Exception e) {
             return false;

@@ -11,7 +11,7 @@ import static io.restassured.RestAssured.get;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
+//@RequiresDockerMachine(name = "dev")
 public class PingPongTest {
 
     @HostIp

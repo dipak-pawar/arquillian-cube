@@ -1,6 +1,6 @@
 package org.arquillian.cube.servlet;
 
-import com.github.dockerjava.api.DockerClient;
+import io.fabric8.docker.client.DockerClient;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresSystemPropertyOrEnvironmentVariable("docker.tomcat.host")
+//@RequiresSystemPropertyOrEnvironmentVariable("docker.tomcat.host")
 public class HelloWorldServletTest {
 
     @Rule

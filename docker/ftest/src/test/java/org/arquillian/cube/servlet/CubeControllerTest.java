@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresSystemPropertyOrEnvironmentVariable("docker.tomcat.host")
+//@RequiresSystemPropertyOrEnvironmentVariable("docker.tomcat.host")
 public class CubeControllerTest {
 
     private static final String MANUAL_START_CUBE = "database_manual";
