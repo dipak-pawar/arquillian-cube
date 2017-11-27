@@ -10,24 +10,23 @@ import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.annotations.Scheme;
 import org.arquillian.cube.kubernetes.annotations.UseDns;
 import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.api.SessionListener;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.core.spi.ServiceLoader;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -35,9 +34,8 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
  * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v3_1.ServiceList}.
  * It refers to services that have been created during the current session.
  */
-public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResourceProvider {
+public class KubernetesServiceUrlEnricher extends AbstractKubernetesTestEnricher {
 
-    private static final String SERVICE_PATH = "api.service.kubernetes.io/path";
     private static final String SERVICE_SCHEME = "api.service.kubernetes.io/scheme";
 
     private static final String DEFAULT_SCHEME = "http";
@@ -49,11 +47,6 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     private static final String SERVICE_A_RECORD_FORMAT = "%s.%s.svc.cluster.local";
 
     private static final Random RANDOM = new Random();
-
-    @Inject
-    private Instance<ServiceLoader> serviceLoader;
-
-    private ResourceProvider next;
 
     /**
      * @param qualifiers
@@ -263,7 +256,7 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     /**
      * @return A random free local port.
      */
-    private static final int findRandomFreeLocalPort() {
+    private static int findRandomFreeLocalPort() {
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         } catch (IOException e) {
@@ -271,37 +264,27 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         }
     }
 
-    @Override
-    public boolean canProvide(Class<?> type) {
-        return URL.class.isAssignableFrom(type);
-    }
-
-    @Override
-    public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        String name = getName(qualifiers);
-        if (Strings.isNullOrEmpty(name)) {
-            ResourceProvider delegate = getNext();
-            if (delegate != null) {
-                return delegate.lookup(resource, qualifiers);
-            }
+    public Object lookup(ServiceUrl serviceUrl, Annotation... qualifiers) {
+        String serviceName = serviceUrl.name();
+        if (Strings.isNullOrEmpty(serviceName)) {
+            throw new IllegalStateException("service name should not be empty");
         }
         String namespace = getSession().getNamespace();
-        Service service = getClient().services().inNamespace(namespace).withName(name).get();
+        Service service = getClient().services().inNamespace(namespace).withName(serviceName).get();
         String scheme = getScheme(service, qualifiers);
         String path = getPath(service, qualifiers);
 
         String ip = service.getSpec().getClusterIP();
-        int port = 0;
+        int port;
 
         if (isPortForwardingEnabled(qualifiers)) {
-            Pod pod = getRandomPod(getClient(), name, namespace);
+            Pod pod = getRandomPod(getClient(), serviceName, namespace);
             int containerPort = getContainerPort(service, qualifiers);
             port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
             ip = LOCALHOST;
         } else if (isUseDnsEnabled(qualifiers)) {
-          ip = String.format(SERVICE_A_RECORD_FORMAT, name, namespace);
+          ip = String.format(SERVICE_A_RECORD_FORMAT, serviceName, namespace);
           port = getPort(service, qualifiers);
-
         } else {
             port = getPort(service, qualifiers);
         }
@@ -314,26 +297,10 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
             }
         } catch (MalformedURLException e) {
             throw new IllegalStateException(
-                "Cannot resolve URL for service: [" + name + "] in namespace:[" + namespace + "].");
+                "Cannot resolve URL for service: [" + serviceName + "] in namespace:[" + namespace + "].");
         }
     }
 
-    private ResourceProvider getNext() {
-        if (next != null) {
-            return next;
-        }
-
-        synchronized (this) {
-            Collection<ResourceProvider> providers = serviceLoader.get().all(ResourceProvider.class);
-            for (ResourceProvider provider : providers) {
-                if (!(provider instanceof KuberntesServiceUrlResourceProvider) && provider.canProvide(URL.class)) {
-                    this.next = provider;
-                    break;
-                }
-            }
-        }
-        return next;
-    }
 
     private int portForward(Session session, String podName, int targetPort) {
         return portForward(session, podName, findRandomFreeLocalPort(), targetPort);
@@ -344,16 +311,60 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
             final PortForwarder portForwarder = new PortForwarder(
                 new ConfigBuilder(getClient().getConfiguration()).withNamespace(session.getNamespace()).build(), podName);
             final PortForwarder.PortForwardServer server = portForwarder.forwardPort(sourcePort, targetPort);
-            session.addListener(new SessionListener() {
-                @Override
-                public void onClose() {
-                    server.close();
-                    portForwarder.close();
-                }
+            session.addListener(() -> {
+                server.close();
+                portForwarder.close();
             });
             return sourcePort;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void enrich(Object testCase) {
+        for (Field field : ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), ServiceUrl.class)) {
+            Object url;
+            try {
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                final ServiceUrl serviceUrl = getAnnotation(ServiceUrl.class, field.getAnnotations());
+                url = lookup(serviceUrl, field.getAnnotations());
+                field.set(testCase, url);
+            } catch (Exception e) {
+                throw new RuntimeException("Could not set Service Url value on field " + field, e);
+            }
+        }
+    }
+
+    @Override
+    public Object[] resolve(Method method) {
+        Object[] values = new Object[method.getParameterTypes().length];
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            ServiceUrl resource = getAnnotation(ServiceUrl.class, method.getParameterAnnotations()[i]);
+            if (resource != null) {
+                List<Annotation> qualifiers = filterAnnotations(Arrays.asList(method.getParameterAnnotations()[i]));
+                Object url = lookup(resource, qualifiers.toArray(new Annotation[qualifiers.size()]));
+                values[i] = url;
+            }
+        }
+        return values;
+    }
+
+    private List<Annotation> filterAnnotations(List<Annotation> annotations) {
+        List<Annotation> filtered = new ArrayList<>();
+
+        if (annotations == null) {
+            return filtered;
+        }
+
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType() != ArquillianResource.class) {
+                filtered.add(annotation);
+            }
+        }
+        return filtered;
     }
 }

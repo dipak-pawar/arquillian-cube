@@ -9,6 +9,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
+import org.arquillian.cube.kubernetes.impl.enricher.ServiceUrl;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -24,15 +25,14 @@ public class HelloWorldTest {
     @Named("hello-openshift-service")
     @PortForward
     @ArquillianResource
-    Service service;
+    private Service service;
 
-    @Named("hello-openshift-service")
+    @ServiceUrl(name = "hello-openshift-service")
     @PortForward
-    @ArquillianResource
-    URL url;
+    private URL url;
 
     @ArquillianResource
-    OpenShiftClient client;
+    private OpenShiftClient client;
 
     @Test
     public void client_should_not_be_null() throws IOException {
