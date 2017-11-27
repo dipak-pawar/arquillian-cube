@@ -1,29 +1,27 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
 import io.fabric8.openshift.api.model.v3_1.Route;
-import org.arquillian.cube.impl.util.ReflectionUtil;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
-import org.jboss.arquillian.config.impl.extension.StringPropertyReplacer;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.test.spi.TestEnricher;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import org.arquillian.cube.impl.util.ReflectionUtil;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesTestEnricher;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
+import org.jboss.arquillian.config.impl.extension.StringPropertyReplacer;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
 
 /**
  * RouteProxyProvider
  *
  * @author Rob Cernich
  */
-public class RouteURLEnricher implements TestEnricher {
+public class RouteURLEnricher extends AbstractKubernetesTestEnricher {
 
     @Inject
     private Instance<OpenShiftClient> clientInstance;
@@ -66,15 +64,6 @@ public class RouteURLEnricher implements TestEnricher {
             }
         }
         return values;
-    }
-
-    private <T extends Annotation> T getAnnotation(Class<T> annotationClass, Annotation[] annotations) {
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType() == annotationClass) {
-                return annotationClass.cast(annotation);
-            }
-        }
-        return null;
     }
 
     private Object lookup(RouteURL routeURL, Class<?> returnType) {
