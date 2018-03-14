@@ -3,6 +3,7 @@ package org.arquillian.cube.kubernetes;
 import java.nio.file.Path;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
+import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
 
 public class ResourceGeneratorBuilder {
 
@@ -26,14 +27,20 @@ public class ResourceGeneratorBuilder {
     }
 
     public void build() {
-        final BuiltProject builtProject = EmbeddedMaven
+        final ConfigurationDistributionStage distributionStage = EmbeddedMaven
             .forProject(pom.toFile())
             .setQuiet()
             .useDefaultDistribution()
+            .setDebug(true)
             .setDebugLoggerLevel()
             .setGoals(goals)
-            .addProperty("fabric8.namespace", namespace)
-            .ignoreFailure()
+            .addProperty("fabric8.namespace", namespace);
+
+        if (System.getenv("JAVA_HOME") == null) {
+            distributionStage.addShellEnvironment("JAVA_HOME", "/usr/lib/jvm/java-1.8.0");
+        }
+
+        final BuiltProject builtProject = distributionStage.ignoreFailure()
             .build();
 
         System.out.println(builtProject.getMavenLog());
