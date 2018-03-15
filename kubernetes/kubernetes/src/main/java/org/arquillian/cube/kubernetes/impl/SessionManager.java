@@ -211,13 +211,16 @@ public class SessionManager implements SessionCreatedListener {
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         createNamespace();
 
+        System.out.println("configuration.isFmpBuildEnabled()::" + configuration.isFmpBuildEnabled());
+        System.out.println("isRunningFromMaven()::" + isRunningFromMaven());
+
         // generate fabric8 resources using build and resource goals
-        if (configuration.isFmpBuildEnabled() && !isRunningFromMaven()) {
+        //if (configuration.isFmpBuildEnabled() && !isRunningFromMaven()) {
             new ResourceGeneratorBuilder()
                 .namespace(session.getNamespace())
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPath()))
                 .build();
-        }
+        //}
 
         setupConsoleListener();
         setupEventListener();
