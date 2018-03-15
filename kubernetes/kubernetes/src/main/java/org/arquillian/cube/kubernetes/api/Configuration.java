@@ -62,7 +62,7 @@ public interface Configuration {
     String API_VERSION = "cube.api.version";
     String TRUST_CERTS = "cube.trust.certs";
 
-    Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
+    Long DEFAULT_WAIT_TIMEOUT = 10 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";

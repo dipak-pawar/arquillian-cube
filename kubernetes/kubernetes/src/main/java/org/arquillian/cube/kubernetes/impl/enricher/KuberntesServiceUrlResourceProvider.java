@@ -5,7 +5,9 @@ import io.fabric8.kubernetes.api.model.v3_1.EndpointSubset;
 import io.fabric8.kubernetes.api.model.v3_1.Endpoints;
 import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.kubernetes.api.model.v3_1.ServiceList;
 import io.fabric8.kubernetes.api.model.v3_1.ServicePort;
+import io.fabric8.kubernetes.api.model.v3_1.extensions.ReplicaSetList;
 import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.io.IOException;
@@ -291,7 +293,7 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         String path = getPath(service, qualifiers);
 
         String ip = service.getSpec().getClusterIP();
-        int port = 0;
+        int port;
 
         if (isPortForwardingEnabled(qualifiers)) {
             Pod pod = getRandomPod(getClient(), name, namespace);
@@ -326,7 +328,7 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         synchronized (this) {
             Collection<ResourceProvider> providers = serviceLoader.get().all(ResourceProvider.class);
             for (ResourceProvider provider : providers) {
-                if (!(provider instanceof KuberntesServiceUrlResourceProvider) && provider.canProvide(URL.class)) {
+                if (provider instanceof KuberntesServiceUrlResourceProvider) {
                     this.next = provider;
                     break;
                 }

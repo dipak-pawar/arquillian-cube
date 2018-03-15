@@ -215,12 +215,12 @@ public class SessionManager implements SessionCreatedListener {
         System.out.println("isRunningFromMaven()::" + isRunningFromMaven());
 
         // generate fabric8 resources using build and resource goals
-        //if (configuration.isFmpBuildEnabled() && !isRunningFromMaven()) {
+        if (configuration.isFmpBuildEnabled() && !isRunningFromMaven()) {
             new ResourceGeneratorBuilder()
                 .namespace(session.getNamespace())
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPath()))
                 .build();
-        //}
+        }
 
         setupConsoleListener();
         setupEventListener();
