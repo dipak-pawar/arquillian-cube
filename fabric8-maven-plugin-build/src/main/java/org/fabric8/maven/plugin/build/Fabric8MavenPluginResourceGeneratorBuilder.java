@@ -93,6 +93,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             .setQuiet(quietMode)
             .useDefaultDistribution()
             .setDebug(mvnDebugOutput)
+            .setMavenOpts("-Xms512m -Xmx1024m")
             .setDebugLoggerLevel()
             .setGoals(goals)
             .addProperty("fabric8.namespace", namespace);
