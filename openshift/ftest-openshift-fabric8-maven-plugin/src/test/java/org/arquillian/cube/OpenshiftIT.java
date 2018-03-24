@@ -22,7 +22,6 @@ import static io.restassured.RestAssured.given;
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
 @RunWith(ArquillianConditionalRunner.class)
-@Ignore
 public class OpenshiftIT {
 
     @AwaitRoute
