@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -143,6 +144,7 @@ public class DefaultNamespaceService implements NamespaceService {
             Boolean deleted = client.namespaces().withName(namespace).withGracePeriod(0).delete();
             if (deleted) {
                 logger.info("Namespace: " + namespace + ", successfully deleted");
+                waitUntilNamespaceDeleted(namespace);
             }
             return deleted;
         }
@@ -195,6 +197,23 @@ public class DefaultNamespaceService implements NamespaceService {
         @Override
         public NamespaceService toImmutable() {
             return this;
+        }
+
+        private void waitUntilNamespaceDeleted(String name) {
+            Namespace namespace = client.namespaces().withName(name).get();
+            int retryCount = 0;
+            while (namespace != null && namespace.getStatus().getPhase().equals("Terminating") && retryCount < 60) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    namespace = client.namespaces().withName(name).get();
+                    retryCount++;
+                    if (retryCount == 60 && namespace != null && namespace.getStatus().getPhase().equals("Terminating")) {
+                        logger.info("Project is in `Terminating` state after deleting and waiting for 30s");
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }

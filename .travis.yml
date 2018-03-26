@@ -90,6 +90,5 @@ after_failure:
     fi'
   - |
       if [ ${OC_CLUSTER_UP} ]; then
-        oc project default
-        oc get event -w
+        oc get event --all-namespaces
       fi
