@@ -140,7 +140,7 @@ public class DefaultNamespaceService implements NamespaceService {
         @Override
         public Boolean delete(String namespace) {
             logger.info("Deleting namespace: " + namespace + "...");
-            Boolean deleted = client.namespaces().withName(namespace).delete();
+            Boolean deleted = client.namespaces().withName(namespace).withGracePeriod(0).delete();
             if (deleted) {
                 logger.info("Namespace: " + namespace + ", successfully deleted");
             }
@@ -181,7 +181,6 @@ public class DefaultNamespaceService implements NamespaceService {
                     Scanner scanner = new Scanner(System.in);
                     scanner.nextLine();
                     logger.info("Cleaning up...");
-                    return;
                 } else {
                     long timeout = configuration.getNamespaceDestroyTimeout();
                     if (timeout > 0L) {

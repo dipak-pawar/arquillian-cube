@@ -444,7 +444,9 @@ public class SessionManager implements SessionCreatedListener {
         String namespace = session.getNamespace();
         try {
             if (configuration.isNamespaceCleanupEnabled()) {
-                resourceInstaller.uninstall(resources);
+                final Map<HasMetadata, Boolean> uninstall = resourceInstaller.uninstall(resources);
+                System.out.println("----------------uninstall--------------------");
+                System.out.println(uninstall);
             }
 
             /*

@@ -93,7 +93,6 @@ public class DefaultResourceInstaller implements ResourceInstaller {
 
         @Override
         public Map<HasMetadata, Boolean> uninstall(URL url) {
-            Map<HasMetadata, Boolean> result = new HashMap<>();
             CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
 
             try (InputStream is = url.openStream()) {
@@ -109,7 +108,7 @@ public class DefaultResourceInstaller implements ResourceInstaller {
             preUninstallCheck();
             for (HasMetadata h : list) {
                 try {
-                    Boolean deleted = client.resource(h).delete();
+                    Boolean deleted = client.resource(h).withGracePeriod(0).delete();
                     result.put(h, deleted);
                 } catch (Throwable t) {
                     result.put(h, false);
@@ -127,7 +126,6 @@ public class DefaultResourceInstaller implements ResourceInstaller {
                 Scanner scanner = new Scanner(System.in);
                 scanner.nextLine();
                 logger.info("Cleaning up...");
-                return;
             } else {
                 long timeout = configuration.getNamespaceCleanupTimeout();
                 if (timeout > 0L) {
