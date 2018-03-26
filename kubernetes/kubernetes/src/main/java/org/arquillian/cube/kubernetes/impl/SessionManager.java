@@ -187,18 +187,19 @@ public class SessionManager implements SessionCreatedListener {
                 }
 
                 if (configuration.isWaitEnabled() && !resourcesToWait.isEmpty()) {
-                    final CommandExecutor executor = new CommandExecutor();
-                    System.out.println("-----------------------oc get all --all-namespaces------------------");
-                    final List<String> strings = executor.execCommand("oc get all --all-namespaces");
-                    System.out.println(strings);
-                    System.out.println("-----------------------oc describe node------------------");
-                    final List<String> describe_node = executor.execCommand("oc describe node");
-                    System.out.println(describe_node);
-
                     try {
                         client.resourceList(resourcesToWait)
                             .waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                     } catch (KubernetesClientTimeoutException t) {
+                        final CommandExecutor executor = new CommandExecutor();
+                        System.out.println("-----------------------oc get pods --all-namespaces------------------");
+                        final List<String> strings = executor.execCommand("oc get pods --all-namespaces");
+                        System.out.println(strings);
+                        System.out.println();
+                        System.out.println("*************************************************************");
+                        System.out.println("-----------------------oc describe node------------------");
+                        final List<String> describe_node = executor.execCommand("oc describe node");
+                        System.out.println(describe_node);
                         log.warn("There are resources in not ready state:");
                         for (HasMetadata r : t.getResourcesNotReady()) {
                             log.error(
