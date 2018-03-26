@@ -5,7 +5,7 @@ matrix:
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0" COMMIT_ID="7ed6862" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.1" COMMIT_ID="ab0f056" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0" COMMIT_ID="1a01f4d" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
 services:
@@ -83,6 +83,10 @@ after_error:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker logs adoc-to-html;
     fi'
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        oc get event --all-namespaces
+      fi
 
 after_failure:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
