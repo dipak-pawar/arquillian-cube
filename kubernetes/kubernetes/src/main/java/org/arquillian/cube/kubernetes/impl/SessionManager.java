@@ -47,6 +47,7 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.arquillian.cube.kubernetes.impl.utils.CommandExecutor;
 import org.fabric8.maven.plugin.build.Fabric8MavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 import org.xnio.IoUtils;
@@ -186,6 +187,14 @@ public class SessionManager implements SessionCreatedListener {
                 }
 
                 if (configuration.isWaitEnabled() && !resourcesToWait.isEmpty()) {
+                    final CommandExecutor executor = new CommandExecutor();
+                    System.out.println("-----------------------oc get all --all-namespaces------------------");
+                    final List<String> strings = executor.execCommand("oc get all --all-namespaces");
+                    System.out.println(strings);
+                    System.out.println("-----------------------oc describe node------------------");
+                    final List<String> describe_node = executor.execCommand("oc describe node");
+                    System.out.println(describe_node);
+
                     try {
                         client.resourceList(resourcesToWait)
                             .waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
