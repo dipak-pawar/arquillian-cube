@@ -4,7 +4,7 @@ if ! which nsenter > /dev/null; then
     NSENTER_BUILD_DIR=$(mktemp -d /tmp/nsenter-build-XXXXXX)
     pushd ${NSENTER_BUILD_DIR}
     curl https://www.kernel.org/pub/linux/utils/util-linux/v2.31/util-linux-2.31.tar.gz | tar -zxf-
-    cd util-linux-2.31
+    cd .travis/util-linux-2.31
     ./configure --without-ncurses
     make nsenter
     sudo cp nsenter /usr/local/bin
