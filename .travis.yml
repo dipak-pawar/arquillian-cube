@@ -5,7 +5,7 @@ matrix:
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0" COMMIT_ID="7ed6862" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-     - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0" COMMIT_ID="1a01f4d" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0-alpha.3" COMMIT_ID="78ddc10" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
 services:
