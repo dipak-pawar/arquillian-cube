@@ -149,10 +149,7 @@ public class DefaultNamespaceService implements NamespaceService {
 
         @Override
         public Boolean exists(String namespace) {
-            if (configuration.isNamespaceUseCurrentEnabled()) {
-                return true;
-            }
-            return client.namespaces().withName(namespace).get() != null;
+            return configuration.isNamespaceUseCurrentEnabled() || client.namespaces().withName(namespace).get() != null;
         }
 
         @Override
@@ -173,8 +170,6 @@ public class DefaultNamespaceService implements NamespaceService {
             Configuration configuration = this.configuration;
             try {
                 if (configuration.isNamespaceDestroyConfirmationEnabled()) {
-                    showErrors();
-                    logger.info("");
                     logger.info("Waiting to destroy the namespace.");
                     logger.info("Please press <enter> to cleanup the namespace.");
 
@@ -184,8 +179,6 @@ public class DefaultNamespaceService implements NamespaceService {
                 } else {
                     long timeout = configuration.getNamespaceDestroyTimeout();
                     if (timeout > 0L) {
-                        showErrors();
-                        logger.info("");
                         logger.info("Waiting for " + timeout + " seconds before destroying the namespace");
                         try {
                             Thread.sleep(timeout * 1000);
@@ -197,9 +190,6 @@ public class DefaultNamespaceService implements NamespaceService {
             } finally {
                 delete(namespace);
             }
-        }
-
-        private void showErrors() {
         }
 
         @Override

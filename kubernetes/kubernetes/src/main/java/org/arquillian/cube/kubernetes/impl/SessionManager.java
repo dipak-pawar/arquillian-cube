@@ -200,6 +200,13 @@ public class SessionManager implements SessionCreatedListener {
                         System.out.println("-----------------------oc describe node------------------");
                         final List<String> describe_node = executor.execCommand("oc describe node");
                         System.out.println(describe_node);
+
+                        System.out.println();
+                        System.out.println("*************************************************************");
+                        System.out.println("-----------------------ocGetNs------------------");
+                        final List<String> ocGetNs = executor.execCommand("oc get ns");
+                        System.out.println(ocGetNs);
+
                         log.warn("There are resources in not ready state:");
                         for (HasMetadata r : t.getResourcesNotReady()) {
                             log.error(
@@ -445,8 +452,6 @@ public class SessionManager implements SessionCreatedListener {
         try {
             if (configuration.isNamespaceCleanupEnabled()) {
                 final Map<HasMetadata, Boolean> uninstall = resourceInstaller.uninstall(resources);
-                System.out.println("----------------uninstall--------------------");
-                System.out.println(uninstall);
             }
 
             /*
